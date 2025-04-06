@@ -11,7 +11,7 @@ port = os.environ.get('PORT', '10000')
 bind = f"0.0.0.0:{port}"
 
 # Number of worker processes
-workers = 4
+workers = 2
 
 # Use gevent worker type for better performance with async operations
 worker_class = "gevent"
