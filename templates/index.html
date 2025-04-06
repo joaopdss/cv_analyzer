@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV-to-Job Matching System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+        .header {
+            background-color: #343a40;
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            border: none;
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+        .form-label {
+            font-weight: 500;
+        }
+        .result-section {
+            display: none;
+        }
+        .progress {
+            height: 30px;
+            margin-bottom: 1rem;
+        }
+        .progress-bar {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        #loadingSpinner {
+            display: none;
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #0d6efd;
+            margin-bottom: 1rem;
+        }
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+        }
+        .match-high {
+            color: #28a745;
+        }
+        .match-medium {
+            color: #ffc107;
+        }
+        .match-low {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header text-center">
+        <div class="container">
+            <h1>CV-to-Job Matching System</h1>
+            <p class="lead">Analyze how well your CV matches a job description using AI</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Features Section -->
+        <section class="row mb-5">
+            <div class="col-md-4 text-center">
+                <div class="feature-icon">📄</div>
+                <h3>CV Analysis</h3>
+                <p>Upload your CV in PDF, DOCX, or TXT format for intelligent parsing and analysis.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="feature-icon">🔍</div>
+                <h3>Job Matching</h3>
+                <p>Our AI compares your CV with job requirements using advanced semantic matching.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="feature-icon">📊</div>
+                <h3>Detailed Feedback</h3>
+                <p>Get actionable insights to improve your CV for specific job positions.</p>
+            </div>
+        </section>
+
+        <!-- Input Form -->
+        <section class="card">
+            <div class="card-header">
+                <h2 class="mb-0">Upload CV & Job Description</h2>
+            </div>
+            <div class="card-body">
+                <form id="analyzeForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="cvFile" class="form-label">Upload your CV</label>
+                        <input type="file" class="form-control" id="cvFile" name="cv_file" accept=".pdf,.docx,.doc,.txt" required>
+                        <div class="form-text">Supported formats: PDF, DOCX, DOC, TXT</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="jobDescription" class="form-label">Job Description</label>
+                        <textarea class="form-control" id="jobDescription" name="job_description" rows="6" placeholder="Paste the job description here..." required></textarea>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Analyze Match</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="text-center my-5">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Analyzing your CV and job description...</p>
+        </div>
+
+        <!-- Results Section -->
+        <section id="resultsSection" class="result-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Match Results</h2>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h3>Overall Match Score</h3>
+                        <div class="progress">
+                            <div id="matchProgressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                        </div>
+                        <h4 id="matchCategory" class="mt-2"></h4>
+                    </div>
+                    
+                    <div class="alert alert-primary" id="matchSummary"></div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header">Skills Match</div>
+                                <div class="card-body">
+                                    <div class="text-center mb-3">
+                                        <h4 id="skillsScore">0%</h4>
+                                    </div>
+                                    <p id="skillsFeedback"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header">Experience Match</div>
+                                <div class="card-body">
+                                    <div class="text-center mb-3">
+                                        <h4 id="experienceScore">0%</h4>
+                                    </div>
+                                    <p id="experienceFeedback"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-header">Education Match</div>
+                                <div class="card-body">
+                                    <div class="text-center mb-3">
+                                        <h4 id="educationScore">0%</h4>
+                                    </div>
+                                    <p id="educationFeedback"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h3>Recommendations</h3>
+                        <div id="recommendationsContainer"></div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <a id="detailedReportLink" href="#" target="_blank" class="btn btn-primary">View Detailed Report</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer text-center">
+        <div class="container">
+            <p>CV-to-Job Matching System &copy; 2025</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const analyzeForm = document.getElementById('analyzeForm');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const resultsSection = document.getElementById('resultsSection');
+            
+            analyzeForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading spinner
+                loadingSpinner.style.display = 'block';
+                resultsSection.style.display = 'none';
+                
+                // Create form data
+                const formData = new FormData(analyzeForm);
+                
+                // Send request
+                fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                        loadingSpinner.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Update results
+                    updateResults(data);
+                    
+                    // Hide loading spinner and show results
+                    loadingSpinner.style.display = 'none';
+                    resultsSection.style.display = 'block';
+                    
+                    // Scroll to results
+                    resultsSection.scrollIntoView({ behavior: 'smooth' });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                    loadingSpinner.style.display = 'none';
+                });
+            });
+            
+            function updateResults(data) {
+                // Update match percentage
+                const matchPercentage = data.match_percentage;
+                const matchProgressBar = document.getElementById('matchProgressBar');
+                matchProgressBar.style.width = matchPercentage + '%';
+                matchProgressBar.textContent = matchPercentage + '%';
+                matchProgressBar.setAttribute('aria-valuenow', matchPercentage);
+                
+                // Set progress bar color based on match percentage
+                if (matchPercentage >= 80) {
+                    matchProgressBar.className = 'progress-bar bg-success';
+                    document.getElementById('matchCategory').textContent = 'High Match';
+                    document.getElementById('matchCategory').className = 'mt-2 match-high';
+                } else if (matchPercentage >= 60) {
+                    matchProgressBar.className = 'progress-bar bg-warning';
+                    document.getElementById('matchCategory').textContent = 'Medium Match';
+                    document.getElementById('matchCategory').className = 'mt-2 match-medium';
+                } else {
+                    matchProgressBar.className = 'progress-bar bg-danger';
+                    document.getElementById('matchCategory').textContent = 'Low Match';
+                    document.getElementById('matchCategory').className = 'mt-2 match-low';
+                }
+                
+                // Update summary
+                document.getElementById('matchSummary').textContent = data.summary;
+                
+                // Update component scores
+                const feedback = data.feedback;
+                
+                // Skills
+                const skillsScore = feedback.component_feedback.skills.score;
+                document.getElementById('skillsScore').textContent = skillsScore + '%';
+                document.getElementById('skillsFeedback').textContent = feedback.component_feedback.skills.feedback;
+                
+                // Experience
+                const experienceScore = feedback.component_feedback.experience.score;
+                document.getElementById('experienceScore').textContent = experienceScore + '%';
+                document.getElementById('experienceFeedback').textContent = feedback.component_feedback.experience.feedback;
+                
+                // Education
+                const educationScore = feedback.component_feedback.education.score;
+                document.getElementById('educationScore').textContent = educationScore + '%';
+                document.getElementById('educationFeedback').textContent = feedback.component_feedback.education.feedback;
+                
+                // Recommendations
+                const recommendationsContainer = document.getElementById('recommendationsContainer');
+                recommendationsContainer.innerHTML = '';
+                
+                // Group recommendations by priority
+                const recommendations = {
+                    high: [],
+                    medium: [],
+                    low: []
+                };
+                
+                feedback.recommendations.forEach(rec => {
+                    recommendations[rec.priority].push(rec);
+                });
+                
+                // Add recommendations by priority
+                ['high', 'medium', 'low'].forEach(priority => {
+                    if (recommendations[priority].length > 0) {
+                        const priorityClass = priority === 'high' ? 'danger' : (priority === 'medium' ? 'warning' : 'success');
+                        
+                        recommendations[priority].forEach(rec => {
+                            const alert = document.createElement('div');
+                            alert.className = `alert alert-${priorityClass} mb-2`;
+                            alert.innerHTML = `<strong>${priority.charAt(0).toUpperCase() + priority.slice(1)} Priority:</strong> ${rec.recommendation}`;
+                            recommendationsContainer.appendChild(alert);
+                        });
+                    }
+                });
+                
+                // Update detailed report link
+                document.getElementById('detailedReportLink').href = data.report_url;
+            }
+        });
+    </script>
+</body>
+</html>
