@@ -3,8 +3,12 @@ Gunicorn configuration file for the CV-to-Job Matching System.
 This file contains settings for the Gunicorn WSGI server.
 """
 
+import os
+
 # Bind to 0.0.0.0 to ensure the application is accessible externally
-bind = "0.0.0.0:$PORT"
+# Use PORT environment variable or default to 10000
+port = os.environ.get('PORT', '10000')
+bind = f"0.0.0.0:{port}"
 
 # Number of worker processes
 workers = 4
