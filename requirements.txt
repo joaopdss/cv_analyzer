@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Requirements file for the CV-to-Job Matching System.
-"""
+
 
 # Core dependencies
 flask==2.3.3
