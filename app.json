@@ -1,0 +1,17 @@
+{
+  "name": "cv-job-matching-system",
+  "version": "1.0.0",
+  "description": "A system that analyzes CVs against job descriptions and provides compatibility ratings and feedback",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/cv-job-matching.git"
+  },
+  "engines": {
+    "python": "3.10.12"
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+"""
+Configuration file for Render deployment.
+This file specifies build and run commands for the CV-to-Job Matching System.
+"""
+
+[build]
+builder = "python"
+buildCommand = "pip install -r requirements.txt"
+
+[web]
+command = "gunicorn wsgi:app"
